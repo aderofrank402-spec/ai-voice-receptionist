@@ -1,0 +1,18 @@
+# Use a dedicated project name so "docker compose -f docker-compose.crawler.yml run ..."
+# does not report orphan containers (e.g. voiceagent-db-1 from the main docker-compose.yml).
+name: crawler
+
+services:
+  crawler:
+    image: velocity-crawler
+    working_dir: /usr/src/app
+    volumes:
+      # Bind mount the entire crawler directory for live code/config updates
+      - ./crawler:/usr/src/app
+      # Named volume to protect node_modules from host contamination (Windows vs Linux)
+      - crawler_node_modules:/usr/src/app/node_modules
+    # Default command (can be overridden by run command)
+    command: [ "npx", "tsx", "src/main.ts" ]
+
+volumes:
+  crawler_node_modules:

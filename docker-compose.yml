@@ -1,0 +1,25 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    ports:
+      - '${DB_PORT_DOCKER:-5433}:5432'
+    environment:
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data'
+    networks:
+      - sail
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "${DB_DATABASE}", "-U", "${DB_USERNAME}" ]
+      retries: 3
+      timeout: 5s
+
+networks:
+  sail:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local

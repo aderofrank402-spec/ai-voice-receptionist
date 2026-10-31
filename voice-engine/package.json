@@ -1,0 +1,37 @@
+{
+  "name": "voice-engine",
+  "version": "1.0.0",
+  "description": "Voice pipeline: Deepgram (STT) + Groq (LLM) + ElevenLabs (TTS). Contract for telephony/RTP.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "test:engine": "tsx src/scripts/test-engine.ts",
+    "check-deepgram": "tsx src/scripts/check-deepgram.ts",
+    "list-voices": "tsx src/scripts/list-elevenlabs-voices.ts",
+    "download-audio": "tsx src/scripts/download-audio.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@deepgram/sdk": "^4.11.3",
+    "axios": "^1.13.4",
+    "dotenv": "^17.2.3",
+    "dotenv-safe": "^9.1.0",
+    "elevenlabs": "^1.59.0",
+    "groq-sdk": "^0.37.0",
+    "https-proxy-agent": "^7.0.5",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "@types/ws": "^8.18.1",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

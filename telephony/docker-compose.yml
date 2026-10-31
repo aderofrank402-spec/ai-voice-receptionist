@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  drachtio:
+    image: drachtio/drachtio-server:latest
+    container_name: drachtio_voice_agent
+    restart: unless-stopped
+    ports:
+      # Expose Admin Port for Node.js app to connect to
+      - "9022:9022/tcp"
+      # Expose SIP Ports for Zadarma
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+    environment:
+      - DRACHTIO_SECRET=cymru
+    # Drachtio CLI injection completely overrides XML and prevents Windows \r\n parser corruption.
+    # sip:0.0.0.0:5060 safely negotiates Docker IPv4 interfaces, bypassing IPv6 crash exceptions mapping.
+    command: ["drachtio", "--port", "0.0.0.0:9022", "--secret", "cymru", "--contact", "sip:0.0.0.0:5060", "--loglevel", "info"]

@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # 1. The Signaling Server (SIP)
+  drachtio:
+    image: drachtio/drachtio-server:latest
+    container_name: drachtio
+    restart: always
+    ports:
+      - "5060:5060/udp"
+      - "5060:5060/tcp"
+      - "9022:9022/tcp"
+    command: drachtio -f /etc/drachtio.conf.xml
+    volumes:
+      - ./drachtio.conf.xml:/etc/drachtio.conf.xml
+
+  # 2. The Media Proxy (RTP)
+  rtpengine:
+    image: fonoster/rtpengine:latest
+    container_name: rtpengine
+    restart: always
+    ports:
+      - "2223:2223/udp"
+      - "10000-10050:10000-10050/udp"
+    environment:
+      - PUBLIC_IP=127.0.0.1
+    command: rtpengine --interface=pub/0.0.0.0 --listen-ng=0.0.0.0:2223 --pidfile=/var/run/rtpengine.pid --foreground
