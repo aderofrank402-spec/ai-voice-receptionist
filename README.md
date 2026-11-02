@@ -1,7 +1,7 @@
 # AI Voice Receptionist
 
 [![CI](https://github.com/aderofrank402-spec/ai-voice-receptionist/actions/workflows/ci.yml/badge.svg)](https://github.com/aderofrank402-spec/ai-voice-receptionist/actions/workflows/ci.yml)
-[![PHP 8.2+](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)](composer.json)
+[![PHP 8.4+](https://img.shields.io/badge/PHP-8.4%2B-777BB4?logo=php&logoColor=white)](composer.json)
 [![Laravel 12](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel&logoColor=white)](composer.json)
 [![TypeScript](https://img.shields.io/badge/TypeScript-real--time%20services-3178C6?logo=typescript&logoColor=white)](voice-engine/src)
 
@@ -77,7 +77,7 @@ These figures describe the public repository snapshot, not production traffic or
 
 ## Technology
 
-- **Control plane:** PHP 8.2+, Laravel 12, Sanctum, Reverb, Pulse, Telescope
+- **Control plane:** PHP 8.4+, Laravel 12, Sanctum, Reverb, Pulse, Telescope
 - **Web application:** Blade, Tailwind CSS, Alpine.js, Chart.js, Vite
 - **Voice engine:** TypeScript, WebSockets, Deepgram, Groq, ElevenLabs
 - **Telephony:** SIP, RTP, Drachtio, Fastify, provider adapter
@@ -103,7 +103,7 @@ See [the security model](docs/SECURITY_MODEL.md) and [security policy](SECURITY.
 
 ### Requirements
 
-- PHP 8.2 or newer and Composer
+- PHP 8.4 or newer and Composer
 - Node.js 20 or newer and npm
 - SQLite for the default development path; PostgreSQL for vector-search behavior
 - Redis when running the crawler queue
