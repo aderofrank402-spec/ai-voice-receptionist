@@ -78,14 +78,15 @@ const crawler = new PlaywrightCrawler({
             
             // Extract links from navigation, header, and footer
             const discoveredLinks = await page.evaluate(() => {
-                const links = [];
+                const links: Array<{ url: string; text: string; source: string; priority: number; label?: string }> = [];
                 
                 // Priority 1: Main navigation
                 document.querySelectorAll('nav a, header a, [role="navigation"] a').forEach(a => {
-                    if (a.href && a.href.startsWith(window.location.origin)) {
+                    const anchor = a as HTMLAnchorElement;
+                    if (anchor.href && anchor.href.startsWith(window.location.origin)) {
                         const text = a.textContent?.trim().toLowerCase() || '';
                         links.push({
-                            url: a.href,
+                            url: anchor.href,
                             text: text,
                             source: 'navigation',
                             priority: 10
@@ -95,12 +96,13 @@ const crawler = new PlaywrightCrawler({
                 
                 // Priority 2: Main content area links (but lower priority)
                 document.querySelectorAll('main a, [role="main"] a, .content a').forEach(a => {
-                    if (a.href && a.href.startsWith(window.location.origin)) {
+                    const anchor = a as HTMLAnchorElement;
+                    if (anchor.href && anchor.href.startsWith(window.location.origin)) {
                         const text = a.textContent?.trim().toLowerCase() || '';
                         // Only add if not already in nav links
-                        if (!links.some(link => link.url === a.href)) {
+                        if (!links.some(link => link.url === anchor.href)) {
                             links.push({
-                                url: a.href,
+                                url: anchor.href,
                                 text: text,
                                 source: 'content',
                                 priority: 5

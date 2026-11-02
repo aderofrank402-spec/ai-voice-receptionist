@@ -31,6 +31,10 @@ Route::prefix('v1')->group(function () {
         Route::post('/calls/log', [AppointmentController::class, 'logCall']);
         Route::get('/system/credentials', [AppointmentController::class, 'getCredentials']);
         Route::post('/system/trace', [AppointmentController::class, 'saveTrace']);
+        Route::get('/internal/appointments/availability', [AppointmentController::class, 'checkAvailability']);
+        Route::post('/internal/appointments/book', [AppointmentController::class, 'book']);
+        Route::post('/internal/payments/stk', [PaymentController::class, 'stkPush']);
+        Route::get('/internal/payments/status', [PaymentController::class, 'status']);
     });
 
     // ── USER-FACING ROUTES: Authenticated by Sanctum token ───────────────

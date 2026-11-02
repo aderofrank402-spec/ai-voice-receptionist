@@ -102,7 +102,9 @@ srf.invite(async (req: any, res: any) => {
 
         server.log.info(`Querying Laravel for agent configuration via DID: ${calledNumber}`);
         try {
-            const agentRes = await axios.get(`${LARAVEL_BASE}/api/v1/agents/by-number?number=${calledNumber}`);
+            const agentRes = await axios.get(`${LARAVEL_BASE}/api/v1/agents/by-number?number=${calledNumber}`, {
+                headers: { 'X-Crawler-Secret': process.env.CRAWLER_SERVICE_SECRET || '' }
+            });
             if (agentRes.data && agentRes.data.agent_id) {
                 agentId = agentRes.data.agent_id;
                 server.log.info(`Mapped DID ${calledNumber} to Agent ID ${agentId}`);

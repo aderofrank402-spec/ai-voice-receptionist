@@ -7,6 +7,9 @@ import { FillerAudioService } from './FillerAudioService';
 import { EventEmitter } from 'events';
 
 const LARAVEL_BASE = process.env.LARAVEL_BASE_URL || 'http://127.0.0.1:8000';
+const INTERNAL_API_HEADERS = {
+    'X-Crawler-Secret': process.env.CRAWLER_SERVICE_SECRET || '',
+};
 
 // ─────────────────────────────────────────────────────────────────────────────
 // THE 8-STATE CONVERSATION MACHINE
@@ -78,6 +81,7 @@ export class VoiceOrchestrator extends EventEmitter {
     // Metadata
     private callId: string;
     private agentId: number | string = 1;
+    private userId: number | null = null;
     private config: any = { media: { output_format: 'pcm_16000' } };
     private startTime: number = Date.now();
 
@@ -126,10 +130,11 @@ export class VoiceOrchestrator extends EventEmitter {
 
         // Load agent config
         try {
-            const response = await axios.get(`${LARAVEL_BASE}/api/v1/agents/config?agent_id=${this.agentId}`);
+            const response = await axios.get(`${LARAVEL_BASE}/api/v1/agents/config?agent_id=${this.agentId}`, { headers: INTERNAL_API_HEADERS });
             const config = response.data?.config;
             if (config?.prompt) {
                 this.groq.setSystemPrompt(config.prompt);
+                this.userId = Number(config.user_id) || null;
                 console.log(`[VoiceOrchestrator] Agent ${this.agentId} loaded: ${config.business_name}`);
             } else {
                 console.warn(`[VoiceOrchestrator] No prompt found for agent ${this.agentId} — using default`);
@@ -675,7 +680,7 @@ export class VoiceOrchestrator extends EventEmitter {
         this.paymentPollTimer = setInterval(async () => {
             if (this.state !== ConversationState.AWAITING_PAYMENT) return;
             try {
-                const res = await axios.get(`${LARAVEL_BASE}/api/v1/payments/status?call_id=${this.callId}`);
+                const res = await axios.get(`${LARAVEL_BASE}/api/v1/internal/payments/status?call_id=${this.callId}`, { headers: INTERNAL_API_HEADERS });
                 if (res.data?.status === 'completed') {
                     console.log('[Payment] Confirmed! Resuming conversation.');
                     this.cancelPaymentWait();
@@ -773,25 +778,35 @@ export class VoiceOrchestrator extends EventEmitter {
             switch (toolData.name) {
                 case 'check_availability': {
                     const date = toolData.arguments?.date || new Date().toISOString().split('T')[0];
-                    const res = await axios.get(`${LARAVEL_BASE}/api/v1/appointments/availability?date=${date}`);
+                    const res = await axios.get(`${LARAVEL_BASE}/api/v1/internal/appointments/availability?date=${date}`, { headers: INTERNAL_API_HEADERS });
                     if (isStaleTurn()) return;
                     toolResult = `Available slots for ${date}: ${res.data.slots.join(', ')}`;
                     break;
                 }
                 case 'book_appointment': {
                     const { name, date, time, reason } = toolData.arguments;
-                    const res = await axios.post(`${LARAVEL_BASE}/api/v1/appointments/book`, { name, date, time, reason });
+                    if (!this.userId) throw new Error('Agent owner is unavailable for appointment booking');
+                    const res = await axios.post(`${LARAVEL_BASE}/api/v1/internal/appointments/book`, {
+                        name,
+                        date,
+                        time,
+                        reason,
+                        user_id: this.userId,
+                        agent_id: this.agentId,
+                    }, { headers: INTERNAL_API_HEADERS });
                     if (isStaleTurn()) return;
                     toolResult = `Booking confirmed! Booking ID: ${res.data.booking_id}`;
                     break;
                 }
                 case 'trigger_mpesa_payment': {
                     const { amount, phone_number } = toolData.arguments;
-                    await axios.post(`${LARAVEL_BASE}/api/v1/payments/stk`, {
+                    if (!this.userId) throw new Error('Agent owner is unavailable for payment processing');
+                    await axios.post(`${LARAVEL_BASE}/api/v1/internal/payments/stk`, {
                         amount: Number(amount),
                         phone_number: phone_number || '254700000000',
                         account_reference: this.callId,
-                    });
+                        user_id: this.userId,
+                    }, { headers: INTERNAL_API_HEADERS });
                     if (isStaleTurn()) return;
                     toolResult = `STK Push sent for KES ${amount}.`;
                     this.pushToolCallToHistory(toolData, toolResult);
@@ -1015,7 +1030,7 @@ export class VoiceOrchestrator extends EventEmitter {
                 duration: Math.round((Date.now() - this.startTime) / 1000),
                 transcript: JSON.stringify(this.history),
                 outcome: 'Ongoing',
-            });
+            }, { headers: INTERNAL_API_HEADERS });
         } catch { /* Silent fail — never block the conversation */ }
     }
 
@@ -1037,7 +1052,7 @@ export class VoiceOrchestrator extends EventEmitter {
                 stt_seconds: this.deepgram.getUsage(),
                 started_at: new Date(this.startTime).toISOString(),
                 ended_at: new Date().toISOString(),
-            });
+            }, { headers: INTERNAL_API_HEADERS });
         } catch (err: any) {
             console.error('[Call Log] Failed:', err.message);
         }

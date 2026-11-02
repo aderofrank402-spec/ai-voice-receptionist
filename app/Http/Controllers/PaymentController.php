@@ -63,7 +63,7 @@ class PaymentController extends Controller
             'transaction_reference' => $response['CheckoutRequestID'],
             'status' => 'pending',
             'provider' => 'mpesa',
-            'metadata' => json_encode(['account_ref' => $request->account_reference])
+            'metadata' => ['account_ref' => $request->account_reference]
         ]);
 
         return response()->json([
@@ -103,7 +103,7 @@ class PaymentController extends Controller
                 $meta = $data['CallbackMetadata']['Item'];
                 $mpesaReceipt = collect($meta)->firstWhere('Name', 'MpesaReceiptNumber')['Value'] ?? 'N/A';
                 $payment->transaction_reference = $mpesaReceipt;
-                $payment->metadata = json_encode($data);
+                $payment->metadata = array_merge($payment->metadata ?? [], ['callback' => $data]);
                 $payment->save();
 
                 // 2. AUTOMATED PAYOUT: Only for Aggregator users
@@ -130,7 +130,7 @@ class PaymentController extends Controller
                     } else {
                         Log::info("Payout Successful for Payment {$payment->id}");
                         // Update payment metadata with transfer ref
-                        $payment->metadata = json_encode(array_merge(json_decode($payment->metadata, true), ['payout' => $transfer]));
+                        $payment->metadata = array_merge($payment->metadata ?? [], ['payout' => $transfer]);
                         $payment->save();
                     }
                 } else {
@@ -140,12 +140,36 @@ class PaymentController extends Controller
             } else {
                 // Failed (Cancelled, Insufficient Funds)
                 $payment->status = 'failed';
-                $payment->metadata = json_encode(['error' => $resultDesc]);
+                $payment->metadata = ['error' => $resultDesc];
                 $payment->save();
             }
         }
 
         return response()->json(['status' => 'success']);
+    }
+
+    /**
+     * Return the latest payment state for an internal voice-call reference.
+     */
+    public function status(Request $request)
+    {
+        $validated = $request->validate([
+            'call_id' => 'required|string|max:255',
+        ]);
+
+        $payment = Payment::query()
+            ->where('metadata->account_ref', $validated['call_id'])
+            ->latest()
+            ->first();
+
+        if (! $payment) {
+            return response()->json(['status' => 'not_found'], 404);
+        }
+
+        return response()->json([
+            'status' => $payment->status,
+            'payment_id' => $payment->id,
+        ]);
     }
 
     /**

@@ -40,7 +40,6 @@ Your responsibilities:
   "missed_call_action": {
     "type": "take_message|forward_call",
     "forward_number": "string (numeric only, e.g. 0712345678) or null",
-    "forward_number": "string (numeric only, e.g. 0712345678) or null",
     "emergency_keywords": ["string"]
   },
   "landmark_directions": "string (e.g. 'Opposite Naivas, near Total Station', null if unknown)",

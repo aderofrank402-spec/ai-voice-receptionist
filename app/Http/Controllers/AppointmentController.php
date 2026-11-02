@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Agent;
+use App\Models\Appointment;
 use App\Models\Call;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Log;
@@ -40,14 +42,33 @@ class AppointmentController extends Controller
             'date'   => 'required|date',
             'time'   => 'required|string',
             'reason' => 'nullable|string',
+            'user_id' => 'required|integer|exists:users,id',
+            'agent_id' => 'required|integer|exists:agents,id',
         ]);
 
-        // Mock Booking Logic — will be replaced when appointments table is wired
+        $agent = Agent::query()
+            ->whereKey($request->integer('agent_id'))
+            ->where('user_id', $request->integer('user_id'))
+            ->where('status', 'active')
+            ->firstOrFail();
+
+        $scheduledAt = Carbon::parse($request->string('date').' '.$request->string('time'));
+        $appointment = Appointment::create([
+            'user_id' => $agent->user_id,
+            'agent_id' => $agent->id,
+            'status' => 'confirmed',
+            'scheduled_at' => $scheduledAt,
+            'notes' => json_encode([
+                'caller_name' => $request->string('name')->toString(),
+                'reason' => $request->string('reason')->toString() ?: null,
+            ], JSON_THROW_ON_ERROR),
+        ]);
+
         return response()->json([
             'status'     => 'success',
             'message'    => 'Appointment confirmed.',
-            'booking_id' => 'BK-' . strtoupper(uniqid()),
-            'details'    => $request->all(),
+            'booking_id' => 'BK-' . $appointment->id,
+            'scheduled_at' => $appointment->scheduled_at->toIso8601String(),
         ]);
     }
 
@@ -109,6 +130,7 @@ class AppointmentController extends Controller
                 'landmark_directions' => $configuration['landmark_directions'] ?? null,
                 'status'              => $agent->status,
                 'phone_number'        => $agent->phone_number,
+                'user_id'             => $agent->user_id,
             ],
         ]);
     }
@@ -173,6 +195,7 @@ class AppointmentController extends Controller
                 'landmark_directions' => $configuration['landmark_directions'] ?? null,
                 'status'              => $agent->status,
                 'phone_number'        => $agent->phone_number,
+                'user_id'             => $agent->user_id,
             ],
         ]);
     }

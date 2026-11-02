@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="720" viewBox="0 0 1400 720" role="img" aria-labelledby="title desc">
+  <title id="title">AI Voice Receptionist architecture</title>
+  <desc id="desc">Incoming calls pass through SIP and RTP telephony into a voice engine coordinating speech recognition, grounded reasoning, speech synthesis, and authenticated Laravel actions.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#07111f"/><stop offset="1" stop-color="#111827"/></linearGradient>
+    <filter id="shadow"><feDropShadow dx="0" dy="8" stdDeviation="10" flood-opacity=".25"/></filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M0 0l12 6-12 6z" fill="#60a5fa"/></marker>
+    <style>
+      .h{font:700 28px Arial,sans-serif;fill:#f8fafc}.s{font:400 15px Arial,sans-serif;fill:#94a3b8}.t{font:700 18px Arial,sans-serif;fill:#f8fafc}.b{font:400 14px Arial,sans-serif;fill:#cbd5e1}.box{fill:#172033;stroke:#334155;stroke-width:2;rx:18;filter:url(#shadow)}.accent{fill:#102a43;stroke:#38bdf8}.data{fill:#172554;stroke:#818cf8}.line{fill:none;stroke:#60a5fa;stroke-width:3;marker-end:url(#arrow)}.dash{fill:none;stroke:#64748b;stroke-width:2;stroke-dasharray:8 7;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1400" height="720" fill="url(#bg)" rx="24"/>
+  <text x="60" y="62" class="h">AI Voice Receptionist</text>
+  <text x="60" y="90" class="s">Authenticated real-time media, grounded reasoning, and durable business actions</text>
+
+  <rect x="55" y="180" width="190" height="120" class="box"/>
+  <text x="150" y="224" class="t" text-anchor="middle">Caller</text><text x="150" y="254" class="b" text-anchor="middle">Phone · SIP provider</text>
+
+  <rect x="310" y="160" width="220" height="160" class="box accent"/>
+  <text x="420" y="205" class="t" text-anchor="middle">Telephony gateway</text><text x="420" y="235" class="b" text-anchor="middle">DID resolution</text><text x="420" y="260" class="b" text-anchor="middle">SIP · SDP · RTP</text><text x="420" y="285" class="b" text-anchor="middle">Human transfer</text>
+
+  <rect x="600" y="140" width="250" height="200" class="box accent"/>
+  <text x="725" y="182" class="t" text-anchor="middle">Voice engine</text><text x="725" y="214" class="b" text-anchor="middle">8-state orchestrator</text><text x="725" y="239" class="b" text-anchor="middle">Barge-in cancellation</text><text x="725" y="264" class="b" text-anchor="middle">Validated tools</text><text x="725" y="289" class="b" text-anchor="middle">Recovery · recording</text><text x="725" y="314" class="b" text-anchor="middle">Usage accounting</text>
+
+  <rect x="930" y="125" width="200" height="80" class="box"/><text x="1030" y="158" class="t" text-anchor="middle">Deepgram</text><text x="1030" y="183" class="b" text-anchor="middle">Streaming STT</text>
+  <rect x="930" y="225" width="200" height="80" class="box"/><text x="1030" y="258" class="t" text-anchor="middle">Groq</text><text x="1030" y="283" class="b" text-anchor="middle">Reasoning · tools</text>
+  <rect x="930" y="325" width="200" height="80" class="box"/><text x="1030" y="358" class="t" text-anchor="middle">ElevenLabs</text><text x="1030" y="383" class="b" text-anchor="middle">Streaming TTS</text>
+
+  <rect x="600" y="455" width="250" height="160" class="box"/>
+  <text x="725" y="497" class="t" text-anchor="middle">Laravel control plane</text><text x="725" y="527" class="b" text-anchor="middle">Tenants · agents · knowledge</text><text x="725" y="552" class="b" text-anchor="middle">Appointments · payments</text><text x="725" y="577" class="b" text-anchor="middle">Audit · billing · telemetry</text>
+
+  <rect x="930" y="475" width="200" height="120" class="box data"/><text x="1030" y="515" class="t" text-anchor="middle">Durable data</text><text x="1030" y="545" class="b" text-anchor="middle">PostgreSQL · Redis</text><text x="1030" y="570" class="b" text-anchor="middle">Queues · object storage</text>
+  <rect x="1180" y="455" width="165" height="160" class="box"/><text x="1262" y="493" class="t" text-anchor="middle">Crawler</text><text x="1262" y="523" class="b" text-anchor="middle">Crawlee</text><text x="1262" y="548" class="b" text-anchor="middle">Playwright</text><text x="1262" y="573" class="b" text-anchor="middle">Versioned sources</text>
+
+  <path d="M245 240H300" class="line"/><path d="M530 240H590" class="line"/><path d="M850 190H920" class="line"/><path d="M850 240H920" class="line"/><path d="M850 290Q890 365 920 365" class="line"/>
+  <path d="M725 350V445" class="line"/><path d="M850 535H920" class="line"/><path d="M1130 535H1170" class="dash"/>
+  <text x="560" y="218" class="s" text-anchor="middle">RTP</text><text x="875" y="432" class="s" text-anchor="middle">authenticated internal API</text>
+</svg>

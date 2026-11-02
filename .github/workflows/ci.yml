@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  laravel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite
+          coverage: none
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+      - run: composer install --no-interaction --prefer-dist --no-progress
+      - run: composer validate --no-check-publish
+      - run: php artisan test
+      - run: npm ci
+      - run: npm run build
+      - run: php scripts/validate_public_repo.php
+
+  node-services:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        service: [voice-engine, telephony, crawler, realtime-server]
+    defaults:
+      run:
+        working-directory: ${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: ${{ matrix.service }}/package-lock.json
+      - run: npm ci
+      - if: matrix.service == 'realtime-server'
+        run: npm ci --prefix ../voice-engine
+      - if: matrix.service != 'realtime-server'
+        run: npm run build
+      - if: matrix.service == 'realtime-server'
+        run: npx tsc --noEmit

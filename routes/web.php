@@ -52,7 +52,6 @@ Route::middleware(['auth', 'not_suspended'])->group(function () {
     Route::get('/agents/edit', [App\Http\Controllers\AgentController::class, 'edit'])->name('agent.edit');
     Route::post('/agents/update', [App\Http\Controllers\AgentController::class, 'update'])->name('agent.update');
     Route::get('/agents/test', [App\Http\Controllers\AgentController::class, 'test'])->name('agent.test');
-    Route::get('/agents/test', [App\Http\Controllers\AgentController::class, 'test'])->name('agent.test');
     Route::post('/agents/test/chat', [App\Http\Controllers\AgentController::class, 'chat'])->name('agent.test.chat');
 
     // Integrations
